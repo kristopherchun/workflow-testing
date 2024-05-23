@@ -23,7 +23,7 @@ jobs:
             environment_url=$(echo "$response" | jq -r '.[] | .environment_url')
             environment_urls+=("$environment_url")
           done
-          echo "::set-output name=environment_urls::${environment_urls[@]}"
+          echo "environment_urls=${environment_urls[@]}" >> $GITHUB_OUTPUT
 
   echo-environment-urls:
     runs-on: ubuntu-latest
