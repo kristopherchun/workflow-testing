@@ -7,6 +7,8 @@ on:
 jobs:
   list-deployments:
     runs-on: ubuntu-latest
+    outputs:
+      environment_urls: ${{ steps.determine_merged_branch.outputs.environment_urls }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -31,7 +33,7 @@ jobs:
     needs: list-deployments
     steps:
       - name: Get environment URLs from previous job
-        run:
+        run: |
           echo "Environment URLs: ${{ needs.list-deployments.outputs.environment_urls }}"
 
       - name: Iterate over environment URLs
