@@ -40,5 +40,5 @@ jobs:
         run: |
           IFS=',' read -r -a urls <<< "${{ needs.list-deployments.outputs.environment_urls }}"
           for url in "${urls[@]}"; do
-            echo "Environment URL: $url"
+            echo "Environment URL: $url\n"
           done
