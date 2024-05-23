@@ -10,9 +10,6 @@ jobs:
     outputs:
       environment_urls: ${{ steps.determine_merged_branch.outputs.environment_urls }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
-
       - name: Determine merged branch
         id: determine_merged_branch
         run: |
@@ -38,7 +35,7 @@ jobs:
 
       - name: Iterate over environment URLs
         run: |
-          IFS=',' read -r -a urls <<< "${{ needs.list-deployments.outputs.environment_urls }}"
+          read -r -a urls <<< "${{ needs.list-deployments.outputs.environment_urls }}"
           for url in "${urls[@]}"; do
-            echo "Environment URL: $url\n"
+            echo "Environment URL: $url"
           done
