@@ -16,6 +16,7 @@ jobs:
     steps:
       - name: Set URL
         id: set_url
-        run: echo "https://test.com/$(echo ${GITHUB_SHA} | cut -c1-7)"
+        run: |
+          echo "https://test.com/$(echo ${GITHUB_SHA} | cut -c1-7)"
       - name: Log Deployment URL
-        run: echo "Preview URL: ${{ steps.set_url.outputs.url }}"
+        run: echo test deployment
