@@ -12,9 +12,17 @@ jobs:
       - name: Extract URL
         id: extract_url
         run: |
+          # Echo all values from the pull request body for debugging
+          echo "Pull Request Body:"
+          echo "${{ github.event.pull_request.body }}"
+          
           # Extract URL from pull request body or metadata
           # For example, if the URL is in the pull request body:
-          url=$(echo "${{ github.event.pull_request.body }}" | grep -o 'https://.*')
+          url=$(echo "${{ github.event.pull_request.body }}" | grep -o 'https://[^ ]*')
+          if [[ -z "$url" ]]; then
+            echo "URL not found in pull request body."
+            exit 1
+          fi
           echo "::set-output name=url::$url"
 
       - name: Perform Actions
