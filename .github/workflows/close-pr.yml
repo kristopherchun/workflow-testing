@@ -1,0 +1,19 @@
+name: List Deployments on PR Close
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  list-deployments:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: List Deployments
+        run: |
+          BRANCH_NAME=$(jq -r '.pull_request.base.ref' "$GITHUB_EVENT_PATH")
+          DEPLOYMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                        "https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments?ref=${BRANCH_NAME}")
+          echo "$DEPLOYMENTS"
