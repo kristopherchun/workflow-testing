@@ -6,14 +6,13 @@ on:
     branches:
       - main
 
-
 jobs:
   deploy:
     name: Deploy to Vercel
     runs-on: ubuntu-latest
     environment:
       name: preview
-      url: https://test.com
+      url: https://test.com/${{ github.sha | slice(0, 7) }}
     steps:
       - name: Log Deployment URL
         run: echo test deployment
