@@ -1,33 +1,19 @@
-name: Pull Request Closed
+name: List Deployments on PR Close
 
 on:
   pull_request:
     types: [closed]
 
 jobs:
-  extract-url:
+  list-deployments:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Extract URL
-        id: extract_url
-        run: |
-          # Echo all values from the pull request body for debugging
-          echo "Pull Request Body:"
-          echo "${{ github.event.pull_request.body }}"
-          
-          # Extract URL from pull request body or metadata
-          # For example, if the URL is in the pull request body:
-          url=$(echo "${{ github.event.pull_request.body }}" | grep -o 'https://[^ ]*')
-          if [[ -z "$url" ]]; then
-            echo "URL not found in pull request body."
-            exit 1
-          fi
-          echo "::set-output name=url::$url"
+      - name: Check out repository
+        uses: actions/checkout@v2
 
-      - name: Perform Actions
+      - name: List Deployments
         run: |
-          # Use the extracted URL for further actions
-          url="${{ steps.extract_url.outputs.url }}"
-          echo "Closed pull request environment URL: $url"
-          # Perform any other desired actions here
+          BRANCH_NAME=$(jq -r '.pull_request.base.ref' "$GITHUB_EVENT_PATH")
+          DEPLOYMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                        "https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments?ref=${BRANCH_NAME}")
+          echo "$DEPLOYMENTS"
