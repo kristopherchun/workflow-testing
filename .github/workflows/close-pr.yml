@@ -1,4 +1,4 @@
-name: List Deployments on PR Close
+name: List Deployments and Environment URLs on PR Close
 
 on:
   pull_request:
@@ -11,10 +11,29 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
 
-      - run: echo branch $(jq -r '.pull_request.head.ref' "$GITHUB_EVENT_PATH")
+      - name: Get Branch Name
+        run: |
+          BRANCH_NAME=$(jq -r '.pull_request.head.ref' "$GITHUB_EVENT_PATH")
+          echo "Branch Name: $BRANCH_NAME"
+          echo "::set-output name=branch_name::$BRANCH_NAME"
+
       - name: List Deployments
+        id: list_deployments
         run: |
           BRANCH_NAME=$(jq -r '.pull_request.head.ref' "$GITHUB_EVENT_PATH")
           DEPLOYMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                         "https://api.github.com/repos/${GITHUB_REPOSITORY}/deployments?ref=${BRANCH_NAME}")
           echo "$DEPLOYMENTS"
+          echo "::set-output name=deployments::$DEPLOYMENTS"
+
+      - name: Get Environment URLs
+        id: get_environment_urls
+        run: |
+          deployments=$(echo "${{ steps.list_deployments.outputs.deployments }}" | jq -r '.[].statuses_url')
+          environment_urls=()
+          for deployment in $deployments; do
+            environment_url=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$deployment" | jq -r '.[].target_url')
+            environment_urls+=("$environment_url")
+          done
+          echo "${environment_urls[@]}"
+          echo "::set-output name=environment_urls::${environment_urls[*]}"
